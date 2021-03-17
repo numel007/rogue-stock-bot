@@ -36,7 +36,7 @@ def proxy_generator():
 def scrape(category):
 
     # Can be changed to any category url
-    url = 'https://www.repfitness.com/bars-plates?cat=166'
+    url = 'https://www.roguefitness.com/weightlifting-bars-plates?cat2%5B0%5D=barbells_id_4669'
 
     while True:
         try:
@@ -51,15 +51,15 @@ def scrape(category):
 
     print('Found working proxy')
     page_content = bs(r.content, features='html5lib')
-    all_product_names = page_content.select('a.product-item-link')
+    all_product_names = page_content.select('h2.product-name')
     all_product_prices = page_content.select('span.price')
 
     names_prices = {}
 
     i = 0
     while i < len(all_product_names):
-        product_name = all_product_names[i].string.strip()
-        names_prices[f'{product_name}'] = (all_product_prices[i]).string
+        product_name = all_product_names[i].find('a').string
+        names_prices[f'{product_name}'] = float((all_product_prices[i]).string.replace('$', ''))
         i+=1
 
     return names_prices
