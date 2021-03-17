@@ -4,16 +4,22 @@ from dotenv import load_dotenv
 from discord.ext import commands
 from bs4 import BeautifulSoup as bs
 import html5lib
-from datetime import datetime
-import time
 import requests
 from random import choice
+from models import Item, DeclarativeBase, db_connect, create_items_table
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+import time
 
 
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
 
 bot = commands.Bot(command_prefix='!')
+engine = db_connect()
+create_items_table(engine)
+Session = sessionmaker(bind=engine)
+db = Session()
 
 def proxy_generator():
     r = requests.get("https://sslproxies.org/")
@@ -65,20 +71,24 @@ def scrape(category):
     return names_prices
 
 
-def check_olympic_plates():
-    url = 'https://www.roguefitness.com/rogue-calibrated-lb-steel-plates'
+def check_calibrated_plates():
+    url = 'https://www.roguefitness.com/rogue-olympic-plates'
+
+    animation = "|/-\\"
+    idx = 0
     while True:
+        print(animation[idx % len(animation)], end="\r")
+        idx += 1
+        time.sleep(0.1)
         try:
             proxy = proxy_generator()
-            print(f"Proxy: {proxy}")
             headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-            r = requests.get(url, proxies=proxy, timeout=3, headers=headers)
+            r = requests.get(url, proxies=proxy, timeout=1.5, headers=headers)
             break
         except:
-            print('Trying new proxy')
             pass
 
-    print('Found working proxy')
+    print('Found working proxy\n')
     page_content = bs(r.content, features='html5lib')
     names = page_content.select('div.item-name')
     grouped_items = page_content.select('div.grouped-item-row')
@@ -102,6 +112,7 @@ async def ping(ctx):
 @bot.event
 async def on_ready():
     print(f'{bot.user} is running.')
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="you."))
 
 @bot.command()
 async def bars(ctx):
@@ -112,11 +123,33 @@ async def bars(ctx):
 
 @bot.command()
 async def check_plates(ctx):
-    values = check_olympic_plates()
+    values = check_calibrated_plates()
     for name, stock_status in values.items():
-        if stock_status == 1:
-            await ctx.channel.send(f'{name}: In stock!')
-        else:
-            await ctx.channel.send(f'{name}: OOS!')
+        print(name, stock_status)
+
+        try:
+            search_item = db.query(Item).filter_by(name=name).first()
+
+            if search_item.stock_status != stock_status:
+                search_item.stock_status = stock_status
+                db.commit()
+                print('Updating stock status')
+
+            print('Duplicate found, skipping')
+
+        except Exception as e:
+            print(e)
+            print('Adding to db')
+            new_item = Item(
+                name = name,
+                stock_status = stock_status
+            )
+            db.add(new_item)
+            db.commit()
+
+        # if stock_status == 1:
+        #     await ctx.channel.send(f'{name}: In stock!')
+        # else:
+        #     await ctx.channel.send(f'{name}: OOS!')
     
 bot.run(TOKEN)

@@ -5,3 +5,4 @@ discord
 python-dotenv
 schedule
 scrapy
+sqlalchemy
