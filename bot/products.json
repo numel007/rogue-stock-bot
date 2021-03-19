@@ -33,24 +33,24 @@
     },
     "bumper-plates": {
         "lb": {
-            "echo": [
-                {"color": "https://www.roguefitness.com/rogue-color-echo-bumper-plate"},
-                {"mil-spec": "https://www.roguefitness.com/rogue-mil-echo-bumper-plates-black"},
-                {"v2": "https://www.roguefitness.com/rogue-echo-bumper-plates-with-white-text"}
-            ],
-            "training": [
-                {"color": "https://www.roguefitness.com/rogue-color-lb-training-2-0-plates"},
-                {"black": "https://www.roguefitness.com/rogue-black-training-lb-color-stripe-plates"},
-                {"hi-temp": "https://www.roguefitness.com/rogue-hi-temp-competition-training-plates"},
-                {"2.0": "https://www.roguefitness.com/rogue-lb-training-2-0-plates"}
-            ]
+            "echo": {
+                "color": "https://www.roguefitness.com/rogue-color-echo-bumper-plate",
+                "mil-spec": "https://www.roguefitness.com/rogue-mil-echo-bumper-plates-black",
+                "v2": "https://www.roguefitness.com/rogue-echo-bumper-plates-with-white-text"
+            },
+            "training": {
+                "color": "https://www.roguefitness.com/rogue-color-lb-training-2-0-plates",
+                "black": "https://www.roguefitness.com/rogue-black-training-lb-color-stripe-plates",
+                "hi-temp": "https://www.roguefitness.com/rogue-hi-temp-competition-training-plates",
+                "2.0": "https://www.roguefitness.com/rogue-lb-training-2-0-plates"
+            }
         },
         "kg": {
-            "training": [
-                {"color": "https://www.roguefitness.com/rogue-color-kg-training-2-0-plates-iwf"},
-                {"black": "https://www.roguefitness.com/rogue-black-training-kg-striped-plates"},
-                {"2.0": "https://www.roguefitness.com/rogue-kg-training-2-0-plates"}
-            ]
+            "training": {
+                "color": "https://www.roguefitness.com/rogue-color-kg-training-2-0-plates-iwf",
+                "black": "https://www.roguefitness.com/rogue-black-training-kg-striped-plates",
+                "2.0": "https://www.roguefitness.com/rogue-kg-training-2-0-plates"
+            }
         }
     }
 }
