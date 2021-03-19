@@ -10,6 +10,7 @@ from models import Item, DeclarativeBase, db_connect, create_items_table
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import time
+import json
 
 
 load_dotenv()
@@ -40,7 +41,6 @@ def proxy_generator():
     return proxy
 
 def scrape():
-    """"Scrape barbells, iron plates, steel plates, bumper plates""""
 
     with open(os.path.join(os.path.dirname(__file__), "products.json")) as file:
         data = json.load(file)
@@ -54,14 +54,23 @@ def scrape():
     for category, product_list in data["barbells"].items():
         for product, url in product_list.items():
             bar_urls.append(url)
+    print('Bars')
+    print(bar_urls)
+    print()
 
     # Parse iron plate urls
     for name, url in data["iron-plates"].items():
         iron_plates_urls.append(url)
+    print('iron')
+    print(iron_plates_urls)
+    print()
 
     # Parse steel plate urls
     for lb_kg, url in data["steel-plates"].items():
         steel_plates_urls.append(url)
+    print('steel')
+    print(steel_plates_urls)
+    print()
 
     # Parse bumper plate urls
     for category, brand in data["bumper-plates"].items():
@@ -71,6 +80,7 @@ def scrape():
                 
     animation = "|/-\\"
     idx = 0
+    data_list = []
     while True:
         print(animation[idx % len(animation)], end="\r")
         idx += 1
@@ -78,24 +88,33 @@ def scrape():
         try:
             proxy = proxy_generator()
             headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-            r = requests.get(url, proxies=proxy, timeout=1.5, headers=headers)
+            for url in steel_plates_urls:
+                r = requests.get(url, proxies=proxy, timeout=8, headers=headers)
+                print(f'Requesting {url}')
+                data_list.append(r)
             break
         except:
             pass
 
-    print('Found working proxy\n')
-    page_content = bs(r.content, features='html5lib')
-    names = page_content.select('div.item-name')
-    grouped_items = page_content.select('div.grouped-item-row')
-    stock_status = []
+    print(data_list)
+    results = {}
+    for data_point in data_list:
+        page_content = bs(data_point.content, features='html5lib')
+        names = page_content.select('div.item-name')
+        grouped_items = page_content.select('div.grouped-item-row')
+        stock_status = []
 
-    for item in grouped_items:
-        if item.select('div.item-qty.input-text'):
-            stock_status.append(1)
-        else:
-            stock_status.append(0)
+        for item in grouped_items:
+            if item.select('div.item-qty.input-text'):
+                stock_status.append(1)
+            else:
+                stock_status.append(0)
 
-    results = {names[i].string: stock_status[i] for i in range(len(names))}
+        for i in range(len(names)):
+            results[f'{names[i].string}'] = stock_status[i]
+        # results = {names[i].string: stock_status[i] for i in range(len(names))}
+
+    print(results)
     return results
 
 @bot.command()
@@ -121,7 +140,6 @@ async def bars(ctx):
 async def check_plates(ctx):
     values = scrape()
     for name, stock_status in values.items():
-        print(name, stock_status)
 
         try:
             search_item = db.query(Item).filter_by(name=name).first()
