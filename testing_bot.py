@@ -39,40 +39,8 @@ def proxy_generator():
 
     return proxy
 
-def scrape(category):
-
-    # Can be changed to any category url
-    url = 'https://www.roguefitness.com/weightlifting-bars-plates?cat2%5B0%5D=barbells_id_4669'
-
-    while True:
-        try:
-            proxy = proxy_generator()
-            print(f"Proxy: {proxy}")
-            headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-            r = requests.get(url, proxies=proxy, timeout=3, headers=headers)
-            break
-        except:
-            print('Trying new proxy')
-            pass
-
-    print('Found working proxy')
-    page_content = bs(r.content, features='html5lib')
-    all_product_names = page_content.select('h2.product-name')
-    all_product_prices = page_content.select('span.price')
-
-    names_prices = {}
-
-    i = 0
-    while i < len(all_product_names):
-        product_name = all_product_names[i].find('a').string
-        names_prices[f'{product_name}'] = float((all_product_prices[i]).string.replace('$', ''))
-        i+=1
-
-    return names_prices
-
-
-def check_calibrated_plates():
-    url = 'https://www.roguefitness.com/rogue-olympic-plates'
+def scrape():
+    url = 'https://www.roguefitness.com/rogue-calibrated-lb-steel-plates'
 
     animation = "|/-\\"
     idx = 0
@@ -114,21 +82,23 @@ async def on_ready():
     print(f'{bot.user} is running.')
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="you."))
 
+# Not working yet!
 @bot.command()
 async def bars(ctx):
-    values = scrape('bars')
+    values = scrape()
     for name, price in values.items():
         await ctx.channel.send(f'{name}: {price}')
     await ctx.channel.send('------------------')
 
 @bot.command()
 async def check_plates(ctx):
-    values = check_calibrated_plates()
+    values = scrape()
     for name, stock_status in values.items():
         print(name, stock_status)
 
         try:
             search_item = db.query(Item).filter_by(name=name).first()
+            print(search_item.name)
 
             if search_item.stock_status != stock_status:
                 search_item.stock_status = stock_status
@@ -146,10 +116,5 @@ async def check_plates(ctx):
             )
             db.add(new_item)
             db.commit()
-
-        # if stock_status == 1:
-        #     await ctx.channel.send(f'{name}: In stock!')
-        # else:
-        #     await ctx.channel.send(f'{name}: OOS!')
     
 bot.run(TOKEN)
