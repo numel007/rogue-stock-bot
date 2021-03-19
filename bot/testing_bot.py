@@ -40,8 +40,7 @@ def proxy_generator():
 
     return proxy
 
-def scrape():
-
+def get_urls():
     with open(os.path.join(os.path.dirname(__file__), "products.json")) as file:
         data = json.load(file)
 
@@ -49,38 +48,40 @@ def scrape():
     iron_plates_urls = []
     steel_plates_urls = []
     bumper_plates_urls = []
+    all_urls = []
 
     # Parse bar urls
     for category, product_list in data["barbells"].items():
         for product, url in product_list.items():
             bar_urls.append(url)
-    print('Bars')
-    print(bar_urls)
-    print()
+    all_urls.append(bar_urls)
 
     # Parse iron plate urls
     for name, url in data["iron-plates"].items():
         iron_plates_urls.append(url)
-    print('iron')
-    print(iron_plates_urls)
-    print()
+    all_urls.append(iron_plates_urls)
 
     # Parse steel plate urls
     for lb_kg, url in data["steel-plates"].items():
         steel_plates_urls.append(url)
-    print('steel')
-    print(steel_plates_urls)
-    print()
+    all_urls.append(steel_plates_urls)
 
     # Parse bumper plate urls
     for category, brand in data["bumper-plates"].items():
         for version, products in brand.items():
             for name, url in products.items():
                 bumper_plates_urls.append(url)
+    all_urls.append(bumper_plates_urls)
+
+    return all_urls
+
+def scrape():
                 
     animation = "|/-\\"
     idx = 0
+    all_urls = get_urls()
     data_list = []
+
     while True:
         print(animation[idx % len(animation)], end="\r")
         idx += 1
@@ -88,10 +89,11 @@ def scrape():
         try:
             proxy = proxy_generator()
             headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-            for url in steel_plates_urls:
-                r = requests.get(url, proxies=proxy, timeout=8, headers=headers)
-                print(f'Requesting {url}')
-                data_list.append(r)
+            for i in range(len(all_urls)):
+                for url in all_urls[i-1]:
+                    r = requests.get(url, proxies=proxy, timeout=8, headers=headers)
+                    print(f'Requesting {url}')
+                    data_list.append(r)
             break
         except:
             pass
@@ -112,16 +114,9 @@ def scrape():
 
         for i in range(len(names)):
             results[f'{names[i].string}'] = stock_status[i]
-        # results = {names[i].string: stock_status[i] for i in range(len(names))}
 
     print(results)
     return results
-
-@bot.command()
-async def ping(ctx):
-    print('Command recieved: !ping')
-    print(ctx.author)
-    await ctx.channel.send('pong')
 
 @bot.event
 async def on_ready():
