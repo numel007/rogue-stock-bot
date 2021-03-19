@@ -1,0 +1,29 @@
+{
+    "barbells": {
+        "ohio": 
+        [
+            {"cerakote": "https://www.roguefitness.com/the-ohio-bar-cerakote"},
+            {"bare-steel": "https://www.roguefitness.com/rogue-45lb-ohio-power-bar-bare-steel"},
+            {"stainless-steel": "https://www.roguefitness.com/stainless-steel-ohio-bar"},
+            {"black-zinc": "https://www.roguefitness.com/rogue-45lb-ohio-power-bar-black-zinc"},
+            {"e-coat": "https://www.roguefitness.com/the-ohio-bar-2-0-e-coat"}
+        ],
+        "bella": [
+            {"cerakote": "https://www.roguefitness.com/the-bella-rogue-womens-bar-cerakote"},
+            {"stainless-steel": "https://www.roguefitness.com/the-bella-bar-2-0-stainless"},
+            {"e-coat": "https://www.roguefitness.com/the-bella-bar-2-0-e-coat"},
+            {"black-zinc": "https://www.roguefitness.com/rogue-bella-bar-2-0-black-zinc"}
+        ],
+        "power": [
+            {"bare-steel": "https://www.roguefitness.com/rogue-45lb-ohio-power-bar-bare-steel"},
+            {"cerakote": "https://www.roguefitness.com/rogue-45lb-ohio-powerlift-bar-cerakote"},
+            {"black-zinc": "https://www.roguefitness.com/rogue-45lb-ohio-power-bar-black-zinc"},
+            {"e-coat": "https://www.roguefitness.com/rogue-ohio-power-bar-e-coat"},
+            {"stainless-steel": "https://www.roguefitness.com/rogue-45lb-ohio-power-bar-stainless"}
+        ]
+    },
+    "iron-plates": {},
+    "steel-plates": {},
+    "bumper-plates": {}
+}
+
