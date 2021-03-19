@@ -40,7 +40,19 @@ def proxy_generator():
     return proxy
 
 def scrape():
-    url = 'https://www.roguefitness.com/rogue-calibrated-lb-steel-plates'
+    """"Scrape barbells, iron plates, steel plates, bumper plates""""
+
+    with open(os.path.join(os.path.dirname(__file__), "products.json")) as file:
+        data = json.load(file)
+
+    bar_urls = []
+    iron_plates_urls = []
+    steel_plates_urls = []
+    bumper_plates_urls = []
+
+    for category, product_list in data["barbells"].items():
+        for product, url in product_list.items():
+            bar_urls.append(url)
 
     animation = "|/-\\"
     idx = 0
