@@ -50,9 +50,19 @@ def scrape():
     steel_plates_urls = []
     bumper_plates_urls = []
 
+    # Parse bar urls
     for category, product_list in data["barbells"].items():
         for product, url in product_list.items():
             bar_urls.append(url)
+
+    # Parse iron plate urls
+    for name, url in data["iron-plates"].items():
+        iron_plates_urls.append(url)
+
+    # Parse steel plate urls
+    for lb_kg, url in data["steel-plates"].items():
+        steel_plates_urls.append(url)
+
 
     animation = "|/-\\"
     idx = 0
