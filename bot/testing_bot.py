@@ -90,10 +90,17 @@ def scrape():
             proxy = proxy_generator()
             headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
             for i in range(len(all_urls)):
+                proxy_usage_counter = 0
+
                 for url in all_urls[i-1]:
                     r = requests.get(url, proxies=proxy, timeout=8, headers=headers)
                     print(f'Requesting {url}')
+                    proxy_usage_counter += 1
                     data_list.append(r)
+
+                    if proxy_usage_counter >= 5:
+                        proxy = proxy_generator()
+                        proxy_usage_counter = 0
             break
         except:
             pass
