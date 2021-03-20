@@ -73,61 +73,81 @@ def get_urls():
                 bumper_plates_urls.append(url)
     all_urls.append(bumper_plates_urls)
 
+    for category in all_urls:
+        for url in category:
+            print(url)
+    return all_urls
+
+# TESTING
+def get_bars():
+    with open(os.path.join(os.path.dirname(__file__), "bars.json")) as file:
+        data = json.load(file)
+
+    bar_urls = []
+    all_urls = []
+
+    # Parse bar urls
+    for category, product_list in data["barbells"].items():
+        for product, url in product_list.items():
+            bar_urls.append(url)
+    all_urls.append(bar_urls)
+
     return all_urls
 
 def scrape():
-                
-    animation = "|/-\\"
-    idx = 0
-    all_urls = get_urls()
+    all_urls = get_bars()
     data_list = []
 
     while True:
-        print(animation[idx % len(animation)], end="\r")
-        idx += 1
-        time.sleep(0.1)
+
         try:
+            print('generating proxy')
             proxy = proxy_generator()
             headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
             for i in range(len(all_urls)):
-                proxy_usage_counter = 0
 
-                for url in all_urls[i-1]:
-                    r = requests.get(url, proxies=proxy, timeout=8, headers=headers)
-                    print(f'Requesting {url}')
-                    proxy_usage_counter += 1
-                    data_list.append(r)
+                for category in all_urls:
+                    for url in category:
+                        print(f'Requesting {url}')
+                        r = requests.get(url, proxies=proxy, timeout=10, headers=headers)
+                        data_list.append(r)
 
-                    if proxy_usage_counter >= 5:
-                        proxy = proxy_generator()
-                        proxy_usage_counter = 0
             break
         except:
             pass
 
-    print(data_list)
+    # TODO: rebuild data handling logic
     results = {}
-    for data_point in data_list:
-        page_content = bs(data_point.content, features='html5lib')
+    # names_list = []
+    # for data_point in data_list:
+    #     page_content = bs(data_point.content, features='html5lib')
 
-        try:
-            names = page_content.select('div.item-name').string
-        except:
-            names = page_content.select('h1.product-title').string
+    #     name = page_content.select_one('title').text
+    #     if not name:
+    #         names_list.append('Failed to grab name')
+    #     else:
+    #         print(name)
+    #         names_list.append(name)
 
-        grouped_items = page_content.select('div.grouped-item-row')
-        stock_status = []
+    #     qty_list = page_content.select('div.grouped-item-row')
 
-        for item in grouped_items:
-            if item.select('div.item-qty.input-text'):
-                stock_status.append(1)
-            else:
-                stock_status.append(0)
+    #     if not qty_list:
+    #         qty_list = page_content.select('div.qty-wrapper.input-text')
+        
 
-        for i in range(len(names)):
-            results[f'{names[i]}'] = stock_status[i]
+    #     stock_status = []
 
-    print(results)
+    #     for item in qty_list:
+    #         if item:
+    #             stock_status.append(1)
+    #         else:
+    #             stock_status.append(0)
+    #     print(f'Names count: {len(names_list)}')
+    #     print(f'Stock status count: {len(stock_status)}')
+    #     for i in range(len(names_list)):
+    #         results[f'{names_list[i-1]}'] = stock_status[i]
+
+    # print(results)
     return results
 
 @bot.event
