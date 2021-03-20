@@ -102,7 +102,12 @@ def scrape():
     results = {}
     for data_point in data_list:
         page_content = bs(data_point.content, features='html5lib')
-        names = page_content.select('div.item-name')
+
+        try:
+            names = page_content.select('div.item-name').string
+        except:
+            names = page_content.select('h1.product-title').string
+
         grouped_items = page_content.select('div.grouped-item-row')
         stock_status = []
 
@@ -113,7 +118,7 @@ def scrape():
                 stock_status.append(0)
 
         for i in range(len(names)):
-            results[f'{names[i].string}'] = stock_status[i]
+            results[f'{names[i]}'] = stock_status[i]
 
     print(results)
     return results
