@@ -97,6 +97,8 @@ def get_bars():
 def scrape():
     all_urls = get_bars()
     data_list = []
+    names_list = []
+    stock_list = []
 
     while True:
 
@@ -110,44 +112,34 @@ def scrape():
                     for url in category:
                         print(f'Requesting {url}')
                         r = requests.get(url, proxies=proxy, timeout=10, headers=headers)
-                        data_list.append(r)
 
+                        page_content = bs(r.content, features='html5lib')
+                        name = page_content.select_one('title').text
+                        qty_list = page_content.select('div.grouped-item-row')
+                        if not qty_list:
+                            print(f'Using fallback qty_list attribute')
+                            qty_list = page_content.select('div.qty-stapper.input-text')
+
+                        names_list.append(name)
+
+                        if len(qty_list) == 0:
+                            print('Item OOS')
+                            stock_list.append(0)
+                        else:
+                            for item in qty_list:
+                                print('item in stock')
+                                stock_list.append(1)
             break
         except:
             pass
 
-    # TODO: rebuild data handling logic
     results = {}
-    # names_list = []
-    # for data_point in data_list:
-    #     page_content = bs(data_point.content, features='html5lib')
+    print(f'Name list length: {len(names_list)}')
+    print(f'Status list length: {len(stock_list)}')
 
-    #     name = page_content.select_one('title').text
-    #     if not name:
-    #         names_list.append('Failed to grab name')
-    #     else:
-    #         print(name)
-    #         names_list.append(name)
+    for i in range(len(names_list)):
+        results[f'{names_list[i-1]}'] = stock_list[i-1]
 
-    #     qty_list = page_content.select('div.grouped-item-row')
-
-    #     if not qty_list:
-    #         qty_list = page_content.select('div.qty-wrapper.input-text')
-        
-
-    #     stock_status = []
-
-    #     for item in qty_list:
-    #         if item:
-    #             stock_status.append(1)
-    #         else:
-    #             stock_status.append(0)
-    #     print(f'Names count: {len(names_list)}')
-    #     print(f'Stock status count: {len(stock_status)}')
-    #     for i in range(len(names_list)):
-    #         results[f'{names_list[i-1]}'] = stock_status[i]
-
-    # print(results)
     return results
 
 @bot.event
