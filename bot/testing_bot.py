@@ -73,30 +73,26 @@ def get_urls():
                 bumper_plates_urls.append(url)
     all_urls.append(bumper_plates_urls)
 
-    for category in all_urls:
-        for url in category:
-            print(url)
     return all_urls
 
 # TESTING
-def get_bars():
-    with open(os.path.join(os.path.dirname(__file__), "bars.json")) as file:
-        data = json.load(file)
+# def get_bars():
+#     with open(os.path.join(os.path.dirname(__file__), "bars.json")) as file:
+#         data = json.load(file)
 
-    bar_urls = []
-    all_urls = []
+#     bar_urls = []
+#     all_urls = []
 
-    # Parse bar urls
-    for category, product_list in data["barbells"].items():
-        for product, url in product_list.items():
-            bar_urls.append(url)
-    all_urls.append(bar_urls)
+#     # Parse bar urls
+#     for category, product_list in data["barbells"].items():
+#         for product, url in product_list.items():
+#             bar_urls.append(url)
+#     all_urls.append(bar_urls)
 
-    return all_urls
+#     return all_urls
 
 def scrape():
-    all_urls = get_bars()
-    data_list = []
+    all_urls = get_urls()
     names_list = []
     stock_list = []
 
@@ -106,31 +102,36 @@ def scrape():
             print('generating proxy')
             proxy = proxy_generator()
             headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-            for i in range(len(all_urls)):
 
-                for category in all_urls:
-                    for url in category:
-                        print(f'Requesting {url}')
-                        r = requests.get(url, proxies=proxy, timeout=10, headers=headers)
+            for category in all_urls:
+                for url in category:
+                    print(f'Requesting {url}')
+                    r = requests.get(url, proxies=proxy, timeout=10, headers=headers)
 
-                        page_content = bs(r.content, features='html5lib')
-                        name = page_content.select_one('title').text
-                        qty_list = page_content.select('div.grouped-item-row')
-                        if not qty_list:
-                            print(f'Using fallback qty_list attribute')
-                            qty_list = page_content.select('div.qty-stapper.input-text')
+                    page_content = bs(r.content, features='html5lib')
+                    name = page_content.select_one('title').text
+                    qty_list = page_content.select('div.grouped-item-row')
+                    if not qty_list:
+                        print(f'Using fallback qty_list attribute')
+                        qty_list = page_content.select('div.qty-stapper.input-text')
 
-                        names_list.append(name)
+                    names_list.append(name)
 
-                        if len(qty_list) == 0:
-                            print('Item OOS')
-                            stock_list.append(0)
-                        else:
-                            for item in qty_list:
+                    if len(qty_list) == 0:
+                        print('Item OOS')
+                        stock_list.append(0)
+                    else:
+                        for item in qty_list:
+                            qty_selector = item.select_one('div.item-qty.input-text')
+                            if qty_selector:
                                 print('item in stock')
                                 stock_list.append(1)
+                            else:
+                                print('item in category oos')
+                                stock_list.append(0)
             break
-        except:
+        except Exception as e:
+            print(e)
             pass
 
     results = {}
