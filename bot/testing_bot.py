@@ -75,22 +75,6 @@ def get_urls():
 
     return all_urls
 
-# TESTING
-# def get_bars():
-#     with open(os.path.join(os.path.dirname(__file__), "bars.json")) as file:
-#         data = json.load(file)
-
-#     bar_urls = []
-#     all_urls = []
-
-#     # Parse bar urls
-#     for category, product_list in data["barbells"].items():
-#         for product, url in product_list.items():
-#             bar_urls.append(url)
-#     all_urls.append(bar_urls)
-
-#     return all_urls
-
 def scrape():
     all_urls = get_urls()
     names_list = []
@@ -112,22 +96,18 @@ def scrape():
                     name = page_content.select_one('title').text
                     qty_list = page_content.select('div.grouped-item-row')
                     if not qty_list:
-                        print(f'Using fallback qty_list attribute')
                         qty_list = page_content.select('div.qty-stapper.input-text')
 
                     names_list.append(name)
 
                     if len(qty_list) == 0:
-                        print('Item OOS')
                         stock_list.append(0)
                     else:
                         for item in qty_list:
                             qty_selector = item.select_one('div.item-qty.input-text')
                             if qty_selector:
-                                print('item in stock')
                                 stock_list.append(1)
                             else:
-                                print('item in category oos')
                                 stock_list.append(0)
             break
         except Exception as e:
@@ -135,8 +115,6 @@ def scrape():
             pass
 
     results = {}
-    print(f'Name list length: {len(names_list)}')
-    print(f'Status list length: {len(stock_list)}')
 
     for i in range(len(names_list)):
         results[f'{names_list[i-1]}'] = stock_list[i-1]
