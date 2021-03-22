@@ -147,3 +147,4 @@ templates/solutions/
 
 # Testing files
 test.py
+database.db
