@@ -15,8 +15,8 @@ import json
 
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
-
 bot = commands.Bot(command_prefix='!')
+
 engine = db_connect()
 create_items_table(engine)
 Session = sessionmaker(bind=engine)
@@ -83,7 +83,7 @@ def scrape():
     while True:
 
         try:
-            print('generating proxy')
+            print('Generating proxy')
             proxy = proxy_generator()
             headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
 
@@ -110,8 +110,7 @@ def scrape():
                             else:
                                 stock_list.append(0)
             break
-        except Exception as e:
-            print(e)
+        except:
             pass
 
     results = {}
@@ -146,13 +145,16 @@ async def check_plates(ctx):
             if search_item.stock_status != stock_status:
                 search_item.stock_status = stock_status
                 db.commit()
-                print('Updating stock status')
+                if stock_status == 0:
+                    print('Updating to OOS')
+                else:
+                    print('Updating to in stock.')
 
-            print('Duplicate found, skipping')
+                if stock_status == 1:
+                    await ctx.send(f'{name} now in stock!')
 
-        except Exception as e:
-            print(e)
-            print('Adding to db')
+        except:
+            print('Adding new item to db')
             new_item = Item(
                 name = name,
                 stock_status = stock_status
