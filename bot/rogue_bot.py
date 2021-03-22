@@ -1,26 +1,15 @@
+from bot.models import Item, db
 import discord
 import os
-from dotenv import load_dotenv
 from discord.ext import commands
 from bs4 import BeautifulSoup as bs
 import html5lib
 import requests
 from random import choice
-from models import Item, DeclarativeBase, db_connect, create_items_table
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 import time
 import json
 
-
-load_dotenv()
-TOKEN = os.getenv('TOKEN')
 bot = commands.Bot(command_prefix='!')
-
-engine = db_connect()
-create_items_table(engine)
-Session = sessionmaker(bind=engine)
-db = Session()
 
 def proxy_generator():
     r = requests.get("https://sslproxies.org/")
@@ -127,6 +116,7 @@ async def on_ready():
 
 @bot.command()
 async def check_stock(ctx):
+    await ctx.send('Checking all listings.')
     values = scrape()
     for name, stock_status in values.items():
 
@@ -151,5 +141,3 @@ async def check_stock(ctx):
             )
             db.add(new_item)
             db.commit()
-    
-bot.run(TOKEN)
