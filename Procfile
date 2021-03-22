@@ -1,1 +1,1 @@
-worker: python bot/rogue_bot.py
+worker: python run.py
