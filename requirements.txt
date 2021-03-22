@@ -6,4 +6,4 @@ python-dotenv
 schedule
 scrapy
 sqlalchemy
-psycopg_2
+psycopg2
