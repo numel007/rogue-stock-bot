@@ -125,16 +125,8 @@ async def on_ready():
     print(f'{bot.user} is running.')
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="you."))
 
-# Not working yet!
 @bot.command()
-async def bars(ctx):
-    values = scrape()
-    for name, price in values.items():
-        await ctx.channel.send(f'{name}: {price}')
-    await ctx.channel.send('------------------')
-
-@bot.command()
-async def check_plates(ctx):
+async def check_stock(ctx):
     values = scrape()
     for name, stock_status in values.items():
 
@@ -149,9 +141,7 @@ async def check_plates(ctx):
                     print('Updating to OOS')
                 else:
                     print('Updating to in stock.')
-
-                if stock_status == 1:
-                    await ctx.send(f'{name} now in stock!')
+                    await ctx.channel.send(f'{name} now in stock!')
 
         except:
             print('Adding new item to db')
