@@ -117,8 +117,8 @@ async def on_ready():
 
 @bot.command()
 async def track_stock(ctx):
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="Rogue's inventory."))
     while True:
-        await ctx.send(f'Checking stock - UTC{datetime.utcnow()}')
         values = scrape()
         for name, stock_status in values.items():
 
@@ -133,7 +133,7 @@ async def track_stock(ctx):
                         print('Updating to OOS')
                     else:
                         print('Updating to in stock.')
-                        await ctx.channel.send(f'{name} now in stock!')
+                        await ctx.channel.send(f'@here ' + f'{name} now in stock!')
 
             except:
                 print('Adding new item to db')
@@ -143,7 +143,6 @@ async def track_stock(ctx):
                 )
                 db.add(new_item)
                 db.commit()
-        ctx.channel.send(f'Check complete.')
 
 @bot.command()
 async def get_stock(ctx):
