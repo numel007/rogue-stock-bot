@@ -8,6 +8,7 @@ import requests
 from random import choice
 import time
 import json
+from datetime import datetime
 
 bot = commands.Bot(command_prefix='!')
 
@@ -39,11 +40,11 @@ def get_urls():
     bumper_plates_urls = []
     all_urls = []
 
-    # Parse bar urls
-    for category, product_list in data["barbells"].items():
-        for product, url in product_list.items():
-            bar_urls.append(url)
-    all_urls.append(bar_urls)
+    # Parse bar urls - temporarly disabled to improve performance
+    # for category, product_list in data["barbells"].items():
+    #     for product, url in product_list.items():
+    #         bar_urls.append(url)
+    # all_urls.append(bar_urls)
 
     # Parse iron plate urls
     for name, url in data["iron-plates"].items():
@@ -115,29 +116,48 @@ async def on_ready():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="you."))
 
 @bot.command()
-async def check_stock(ctx):
-    await ctx.send('Checking all listings.')
-    values = scrape()
-    for name, stock_status in values.items():
+async def track_stock(ctx):
+    while True:
+        await ctx.send(f'Checking stock - UTC{datetime.utcnow()}')
+        values = scrape()
+        for name, stock_status in values.items():
 
-        try:
-            search_item = db.query(Item).filter_by(name=name).first()
-            print(search_item.name)
+            try:
+                search_item = db.query(Item).filter_by(name=name).first()
+                print(search_item.name)
 
-            if search_item.stock_status != stock_status:
-                search_item.stock_status = stock_status
+                if search_item.stock_status != stock_status:
+                    search_item.stock_status = stock_status
+                    db.commit()
+                    if stock_status == 0:
+                        print('Updating to OOS')
+                    else:
+                        print('Updating to in stock.')
+                        await ctx.channel.send(f'{name} now in stock!')
+
+            except:
+                print('Adding new item to db')
+                new_item = Item(
+                    name = name,
+                    stock_status = stock_status
+                )
+                db.add(new_item)
                 db.commit()
-                if stock_status == 0:
-                    print('Updating to OOS')
-                else:
-                    print('Updating to in stock.')
-                    await ctx.channel.send(f'{name} now in stock!')
+        ctx.channel.send(f'Check complete.')
 
-        except:
-            print('Adding new item to db')
-            new_item = Item(
-                name = name,
-                stock_status = stock_status
-            )
-            db.add(new_item)
-            db.commit()
+@bot.command()
+async def get_stock(ctx):
+    all_items = db.query(Item).all()
+    item_list = ''
+
+    for item in all_items:
+        print(f'{item.name}: {item.stock_status}')
+        if item.stock_status == 0:
+            item_list += f':x: {item.name.replace("| Rogue Fitness", "")}\n'
+        else:
+            item_list += f':white_check_mark: {item.name.replace("| Rogue Fitness", "")}\n'
+
+    e = discord.Embed(url='https://github.com/numel007/rogue-bot', description=item_list, color=0xffffff)
+    e.set_author(name='Tracked Product Inventory', url='https://www.roguefitness.com/')
+    e.set_footer(text='Updated 3/23/21', icon_url='https://i.imgur.com/1sqNK27b.jpg')
+    await ctx.channel.send(embed=e)
