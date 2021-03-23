@@ -4,7 +4,7 @@ A Discord bot that automatically checks [Rogue Fitness](https://www.roguefitness
 ## Invite Rogue Stock Bot
 <img width="75%" src="https://media1.giphy.com/media/MS3XfhXoVYkZP702GO/giphy.gif"/>
 <ol>
-  <li>[Click to invite](https://discord.com/api/oauth2/authorize?client_id=821589668628791298&permissions=8&scope=bot)</li>
+  <li> <a href="https://discord.com/api/oauth2/authorize?client_id=821589668628791298&permissions=8&scope=bot">Click here to invite</a> </li>
   <li>Select destination server</li>
   <li>Grant permissions & authorize</li>
   <li>???</li>
