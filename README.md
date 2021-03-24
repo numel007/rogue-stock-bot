@@ -12,45 +12,17 @@ A Discord bot that automatically checks [Rogue Fitness](https://www.roguefitness
 </ol>
 
 ## Commands
-To initiate tracking, type `!check_stock`
+To initiate tracking, type `!track_stock`
 
 ## Tracked products
 <table>
   <tbody>
     <tr>
-      <th>Barbells</th>
       <th>Iron Plates</th>
       <th>Calibrated Plates</th>
       <th>Bumper Plates</th>
     </tr>
     <tr align="left">
-      <td valign="top">
-        <ul>
-          <li>Ohio
-            <ul>
-              <li>Cerakote</li>
-              <li>Stainless Steel</li>
-              <li>Black Zinc</li>
-              <li>E Coat</li>
-            </ul>
-          </li>
-          <li>Bella
-             <ul>
-              <li>Cerakote</li>
-              <li>Stainless Steel</li>
-              <li>Black Zinc</li>
-              <li>E Coat</li>
-            </ul>
-          </li>
-          <li>Power
-            <ul>
-              <li>Cerakote</li>
-              <li>Stainless Steel</li>
-              <li>Black Zinc</li>
-            </ul>
-          </li>
-        </ul>
-      </td>
       <td valign="top">
         <ul>
           <li>Machined</li>
