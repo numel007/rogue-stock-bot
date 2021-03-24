@@ -117,7 +117,8 @@ async def on_ready():
 
 @bot.command()
 async def track_stock(ctx):
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="Rogue's inventory."))
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="inventory."))
+
     while True:
         values = scrape()
         for name, stock_status in values.items():
@@ -129,11 +130,12 @@ async def track_stock(ctx):
                 if search_item.stock_status != stock_status:
                     search_item.stock_status = stock_status
                     db.commit()
+                    
                     if stock_status == 0:
                         print('Updating to OOS')
                     else:
                         print('Updating to in stock.')
-                        await ctx.channel.send(f'@here ' + f'{name} now in stock!')
+                        await ctx.channel.send(f'@here ' + f'{name.replace(" | Rogue Fitness", "")} in stock!')
 
             except:
                 print('Adding new item to db')
