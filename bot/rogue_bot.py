@@ -12,6 +12,7 @@ from datetime import datetime
 
 bot = commands.Bot(command_prefix='!')
 
+
 def proxy_generator():
     r = requests.get("https://sslproxies.org/")
     soup = bs(r.content, 'html5lib')
@@ -24,11 +25,12 @@ def proxy_generator():
 
     while i < len(proxy_list):
         combined_list.append(f'{proxy_list[i].string}:{ports_list[i].string}')
-        i+=1
+        i += 1
 
     proxy = {'https': choice(combined_list)}
 
     return proxy
+
 
 def get_urls():
     with open(os.path.join(os.path.dirname(__file__), "products.json")) as file:
@@ -65,6 +67,7 @@ def get_urls():
 
     return all_urls
 
+
 def scrape():
     all_urls = get_urls()
     names_list = []
@@ -75,18 +78,21 @@ def scrape():
         try:
             print('Generating proxy')
             proxy = proxy_generator()
-            headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
 
             for category in all_urls:
                 for url in category:
                     print(f'Requesting {url}')
-                    r = requests.get(url, proxies=proxy, timeout=10, headers=headers)
+                    r = requests.get(url, proxies=proxy,
+                                     timeout=10, headers=headers)
 
                     page_content = bs(r.content, features='html5lib')
                     name = page_content.select_one('title').text
                     qty_list = page_content.select('div.grouped-item-row')
                     if not qty_list:
-                        qty_list = page_content.select('div.qty-stapper.input-text')
+                        qty_list = page_content.select(
+                            'div.qty-stapper.input-text')
 
                     names_list.append(name)
 
@@ -94,7 +100,8 @@ def scrape():
                         stock_list.append(0)
                     else:
                         for item in qty_list:
-                            qty_selector = item.select_one('div.item-qty.input-text')
+                            qty_selector = item.select_one(
+                                'div.item-qty.input-text')
                             if qty_selector:
                                 stock_list.append(1)
                             else:
@@ -110,18 +117,22 @@ def scrape():
 
     return results
 
+
 @bot.event
 async def on_ready():
     print(f'{bot.user} is running.')
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="you."))
 
+
 @bot.command()
 async def track_stock(ctx):
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="inventory."))
+    await ctx.channel.send(f'Tracking Rogue products now.')
 
     while True:
         values = scrape()
         for name, stock_status in values.items():
+            await ctx.channel.send(f'Checking item {values.index(name)}/{len(values)}')
 
             try:
                 search_item = db.query(Item).filter_by(name=name).first()
@@ -130,7 +141,7 @@ async def track_stock(ctx):
                 if search_item.stock_status != stock_status:
                     search_item.stock_status = stock_status
                     db.commit()
-                    
+
                     if stock_status == 0:
                         print('Updating to OOS')
                     else:
@@ -140,11 +151,12 @@ async def track_stock(ctx):
             except:
                 print('Adding new item to db')
                 new_item = Item(
-                    name = name,
-                    stock_status = stock_status
+                    name=name,
+                    stock_status=stock_status
                 )
                 db.add(new_item)
                 db.commit()
+
 
 @bot.command()
 async def get_stock(ctx):
@@ -158,7 +170,10 @@ async def get_stock(ctx):
         else:
             item_list += f':white_check_mark: {item.name.replace("| Rogue Fitness", "")}\n'
 
-    e = discord.Embed(url='https://github.com/numel007/rogue-bot', description=item_list, color=0xffffff)
-    e.set_author(name='Tracked Product Inventory', url='https://www.roguefitness.com/')
-    e.set_footer(text='Updated 3/23/21', icon_url='https://i.imgur.com/1sqNK27b.jpg')
+    e = discord.Embed(url='https://github.com/numel007/rogue-bot',
+                      description=item_list, color=0xffffff)
+    e.set_author(name='Tracked Product Inventory',
+                 url='https://www.roguefitness.com/')
+    e.set_footer(text='Updated 3/23/21',
+                 icon_url='https://i.imgur.com/1sqNK27b.jpg')
     await ctx.channel.send(embed=e)
